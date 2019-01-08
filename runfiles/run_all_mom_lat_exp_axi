@@ -1,0 +1,11 @@
+#!/bin/bash
+
+
+
+bash run_t42_negm_0_axi
+bash run_t42_negm_5_axi
+bash run_t42_negm_10_axi
+bash run_t42_negm_15_axi
+bash run_t42_negm_20_axi
+bash run_t42_negm_25_axi
+bash run_t42_negm_30_axi

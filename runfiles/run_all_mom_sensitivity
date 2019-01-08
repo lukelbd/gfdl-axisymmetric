@@ -1,0 +1,11 @@
+#!/bin/bash
+
+#redo below
+
+bash run_t42_stm_h300_d12.5_w7.5
+bash run_t42_stm_h300_d25_w7.5
+bash run_t42_stm_h300_d50_w7.5
+
+# bash run_t42_stm_h300_d12.5_w5_pos
+# bash run_t42_stm_h300_d25_w5_pos
+# bash run_t42_stm_h300_d50_w7.5_pos

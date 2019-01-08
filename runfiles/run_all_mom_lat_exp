@@ -1,0 +1,10 @@
+#!/bin/bash
+
+bash run_t42_ozone
+bash run_t42_negm_0
+bash run_t42_negm_5
+bash run_t42_negm_10
+bash run_t42_negm_15
+bash run_t42_negm_20
+bash run_t42_negm_25
+bash run_t42_negm_30

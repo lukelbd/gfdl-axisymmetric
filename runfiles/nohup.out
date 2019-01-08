@@ -1,0 +1,19 @@
+/home/nadavis/moist_gcm/t42_ozone_ocean/scratch/t42_ozone_ocean/t42_ozone_ocean_d01200
+ERROR Working directory: $current_workdir already exist.  Script requires a clean start.
+/home/nadavis/moist_gcm/t42_ozone/scratch/t42_ozone/t42_ozone_d03400
+/bin/ls: cannot access *.nc.0000: No such file or directory
+/bin/ls: cannot access *.nc.0000: No such file or directory
+res.cpio
+1 block
+/home/nadavis/moist_gcm/t42_ozone/scratch/t42_ozone/t42_ozone_d03600
+cp: cannot stat `/home/nadavis/moist_gcm/t42_ozone/scratch/t42_ozone/t42_ozone_d03600/RESTART/atmos_coupled.res.nc': No such file or directory
+cp: cannot stat `/home/nadavis/moist_gcm/t42_ozone/scratch/t42_ozone/t42_ozone_d03600/RESTART/atmosphere.res.nc': No such file or directory
+cp: cannot stat `/home/nadavis/moist_gcm/t42_ozone/scratch/t42_ozone/t42_ozone_d03600/RESTART/coupler.res': No such file or directory
+cp: cannot stat `/home/nadavis/moist_gcm/t42_ozone/scratch/t42_ozone/t42_ozone_d03600/RESTART/physics_driver.res.nc': No such file or directory
+cp: cannot stat `/home/nadavis/moist_gcm/t42_ozone/scratch/t42_ozone/t42_ozone_d03600/RESTART/simple_surface.res.nc': No such file or directory
+cp: cannot stat `/home/nadavis/moist_gcm/t42_ozone/scratch/t42_ozone/t42_ozone_d03600/RESTART/spectral_dynamics.res.nc': No such file or directory
+cp: cannot stat `/home/nadavis/moist_gcm/t42_ozone/scratch/t42_ozone/t42_ozone_d03600/RESTART/spectral_physics.res.nc': No such file or directory
+/bin/ls: cannot access *.nc.0000: No such file or directory
+/bin/ls: cannot access *.nc.0000: No such file or directory
+res.cpio
+1 block

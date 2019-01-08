@@ -1,0 +1,213 @@
+#!/bin/bash
+ulimit -c unlimited
+export MALLOC_CHECK_=0
+#--------------------------------------------------------------------------------------------------------
+# Define the run variables
+# Note that this script assumes that the executable and mppnccombine executables are compiled
+hostname=euclid
+expname=t42_stm_h300_d50_w10 # Experiment name
+tstart=1000		# first day of integration.  Set to 0 for new run.
+			# For a restart, $workdir/$expname_d$tbeg/RESTART/... should exist, with the 
+			# the appropriate restart files.
+tend=1600		# final day of integration
+delta=200		# number of days per iteration
+dt_atmos=1000		# time step, in seconds
+npes=8			# number of processors to use
+hostname=euclid		# host to run on (local for now)
+
+
+#--------------------------------------------------------------------------------------------------------
+source_dir=/home/nadavis/moist_gcm
+compile_dir=$source_dir/exec_solar_full
+execdir=$compile_dir  
+executable=$compile_dir/FMS.exe 
+expdir=/home/nadavis/moist_gcm/$expname              	
+parameterdir=/expdir			# where the namelist, field and diag_tables,
+                                                       	#  initial conditions, etc. are kept
+scratch=$expdir/scratch
+outdir=$scratch/$expname				# where model is run and model output is produced
+workdir=$outdir/$expname				# where model is run and model output is produced
+pathnames=$source_dir/path_names				# path to file containing list of source paths
+core_namelist=$expdir/core.nml
+phys_namelist=$expdir/phys.nml
+diagtable=$expdir/diag_table
+fieldtable=$expdir/field_table	
+topo_input=$expdir/topography.data.nc	# path to topography input file (optional)
+							#  topography input option must be called by namelist
+logdir=$scratch/logs
+outfile=$logdir/$expname.out
+errfile=$logdir/$expname.err
+mppnccombine=/home/nadavis/moist_gcm/mppnccombine.pgi
+
+#--------------------------------------------------------------------------------------------------------
+
+# make sure the executables, namelists, and diag/field tables are present.
+if [ ! -e ${execdir}/FMS.exe ]
+then
+    echo 'ERROR: The executable ${execdir}/FMS.exe is missing.'
+    exit
+fi
+#if [ ! -x $mppnccombine ]
+#then
+#    echo 'ERROR: The mpp combine executable $mppnccombine is missing.'
+#    exit
+#fi
+if [ ! -r $core_namelist ]
+then
+    echo $core_namelist
+    echo 'ERROR: The namelist file $namelist is missing or not readable.'
+    exit
+fi
+if [ ! -r $diagtable ]
+then
+    echo 'ERROR: The diag table $diagtable is missing or not readable.'
+    exit
+fi
+if [ ! -r $fieldtable ]
+then
+    echo 'ERROR: The field table $fieldtable is missing or not readable.'
+    exit
+fi
+
+# Set page sizes to 64 K
+# ldedit -btextpsize=64K -bdatapsize=64K -bstackpsize=64K
+
+# make the outdir/workdir
+if [ ! -d $outdir ] ; then mkdir $outdir ; fi
+
+# prepare for the loop
+pday=`expr $tstart`
+cday=`expr $pday + $delta`
+
+#alias mppnccombine     /home/nadavis/moist_gcm/mppnccombine.pgi
+
+# Iterate the model until you finish the requested integration time.
+while [ "$cday" -le "$tend" ]
+do
+    # Workout the current and previous (if not a cold start) structure.
+    # ocday and opday are for output only, while cday and pday are just
+    # the numbers
+    
+    ocday=$cday
+    if [ "$cday" -lt 10000 ] ; then ocday=0$ocday ; fi
+    if [ "$cday" -lt 1000 ] ; then  ocday=0$ocday ; fi	
+    if [ "$cday" -lt 100 ] ; then   ocday=0$ocday ; fi
+    if [ "$cday" -lt 10 ] ; then    ocday=0$ocday ; fi
+    
+    opday=$pday
+    if [ "$pday" -lt 10000 ] ; then opday=0$opday ; fi
+    if [ "$pday" -lt 1000 ] ; then  opday=0$opday ; fi
+    if [ "$pday" -lt 100 ] ; then   opday=0$opday ; fi
+    if [ "$pday" -lt 10 ] ; then    opday=0$opday ; fi
+
+    current_workdir=${workdir}_d$ocday
+    previous_workdir=${workdir}_d$opday
+    echo $previous_workdir
+
+    # If this is not a cold start (the first iteration).  Look for restart 
+    # files. If they don't exist (or are unreadable), exit. 
+    #if [ "$cday" -gt "$delta" ]
+    #then
+	#if [ ! -r ${previous_workdir}/RESTART/spectral_physics.nc ]
+      #  then
+	#    echo 'ERROR: Missing or unreadable restart files from '${previous_workdir}'/RESTART/'
+      #      echo 'Missing: spectral_physics.nc and possibly others.'
+	#    exit
+       # fi 
+       
+    #fi
+
+
+    # The work directory should not exist already, if so, exit. 
+    if [ -d $current_workdir ]
+    then
+	echo 'ERROR Working directory: $current_workdir already exist.  Script requires a clean start.'
+	exit
+    fi
+
+    # Make the working directory, and the necessary subdirectories.
+    mkdir $current_workdir
+    mkdir ${current_workdir}/RESTART
+    mkdir ${current_workdir}/INPUT    
+    cd $current_workdir
+
+
+    # Set up run length, and transfer parameter files, and the executable.
+
+    #main_nml="&main_nml
+    #days     = $delta
+    #dt_atmos = $dt_atmos /"
+    #echo $main_nml
+    cat > input.nml <<EOF
+&coupler_nml
+     months = 0,
+     days   = $delta,
+     hours  = 0,
+     dt_atmos = $dt_atmos,
+     current_date = 2000,1,1,0,0,0,
+     calendar = 'thirty_day' /
+
+EOF
+   cat $core_namelist >> input.nml
+   cat $phys_namelist >> input.nml
+
+    cp $diagtable diag_table
+    cp $fieldtable field_table
+    cp $executable $executable:t
+    if [ -r $topo_input ]
+    then
+      cp $topo_input ${current_workdir}/INPUT/topography.data.nc
+    fi
+      
+    # If it's not a cold start, get the restart files, too.
+    if [ "$cday" -gt "$delta" ]
+    then
+	cd INPUT
+       cp ${previous_workdir}/RESTART/atmos_coupled.res.nc atmos_coupled.res.nc  
+       cp ${previous_workdir}/RESTART/atmosphere.res.nc atmosphere.res.nc     
+       cp ${previous_workdir}/RESTART/coupler.res coupler.res
+       cp ${previous_workdir}/RESTART/physics_driver.res.nc physics_driver.res.nc
+       cp ${previous_workdir}/RESTART/simple_surface.res.nc simple_surface.res.nc
+       cp ${previous_workdir}/RESTART/spectral_dynamics.res.nc spectral_dynamics.res.nc
+       cp ${previous_workdir}/RESTART/spectral_physics.res.nc spectral_physics.res.nc
+       cd $current_workdir
+    fi
+
+    # run the model!
+    mpirun -np $npes -host $hostname $executable 1>> $outfile 2>> $errfile
+
+    # combine netcdf output files
+    for ncfile in `/bin/ls *.nc.0000`
+    do
+	$mppnccombine -r ${ncfile%%.*}.nc ${ncfile%%.*}.nc.*
+    done
+
+    # did it actually run?  Check for the output.  If it's missing, exit.
+    #if [ ! -r ${current_workdir}/atmos_daily.nc ]
+    #then
+    #    echo '${current_workdir}/atmos_daily.nc is missing.  Chances are the model crashed on this iteration.'
+    #    echo 'The script did not complete successfully.'
+    #    exit
+    #fi
+
+    #combine netcdf restart files
+    cd RESTART
+     for ncfile in `/bin/ls *.nc.0000`
+     do
+        /home/nadavis/moist_gcm/mppnccombine.pgi -r ${ncfile%%.*}.res.nc ${ncfile%%.*}.res.nc.*
+     done
+  
+     #load into a single archive file
+     /bin/ls * | cpio -ov > res.cpio
+
+    cd $current_workdir
+    
+    # step things forward, for the next iteration
+    pday=`expr $cday`
+    cday=`expr $cday + $delta`
+done
+
+echo 'Script completed successfully!'
+
+exit
+

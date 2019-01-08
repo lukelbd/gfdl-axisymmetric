@@ -1,0 +1,88 @@
+#  Note: For one dynamic time step per physics time step,
+#        num_steps_per_call      = 1,
+#        For two dynamic time steps per physics time step,
+#        num_steps_per_call      = 2,
+
+&fms_nml
+ domains_stack_size=600000 /
+
+ &spectral_dynamics_nml
+   damping_option          = 'resolution_dependent',
+   damping_order           = 4,
+   damping_order_vor       = 4,
+   damping_order_div       = 4,
+   damping_coeff           = 1.15740741e-4,   
+   damping_coeff_vor       = 1.15740741e-4,   
+   damping_coeff_div       = 1.15740741e-4,   
+   do_mass_correction      = .true.,
+   do_energy_correction    = .true.,
+   do_water_correction     = .true.,
+   vert_advect_uv          = 'second_centered',
+   vert_advect_t           = 'second_centered',
+   use_virtual_temperature = .false.,
+   use_implicit            = .true.,
+   longitude_origin        =  0.0,
+   robert_coeff            = .03,
+   alpha_implicit          = .5,
+   reference_sea_level_press=100000.,
+   lon_max                 = 128,
+   lat_max                 = 64,
+   num_levels              = 40,
+   num_fourier             = 42,
+   num_spherical           = 43,
+   fourier_inc             = 1,
+   triang_trunc            =.true.,
+   topography_option       = 'flat',
+   ocean_topog_smoothing   = .93,
+   initial_sphum           = 3.e-6,
+   vert_coord_option       = 'input'/
+
+
+ &spectral_diagnostics_nml  
+ /
+
+&vert_coordinate_nml
+    pk(1)=0.000e+00, bk(1)=0.000e+00,  
+    pk(2)=0.000e+00, bk(2)=5.740e-04,
+    pk(3)=0.000e+00, bk(3)=3.737e-03,     
+    pk(4)=0.000e+00, bk(4)=8.624e-03,
+    pk(5)=0.000e+00, bk(5)=1.100e-02,
+    pk(6)=0.000e+00, bk(6)=1.390e-02,
+    pk(7)=0.000e+00, bk(7)=2.180e-02,
+    pk(8)=0.000e+00, bk(8)=2.700e-02,
+    pk(9)=0.000e+00, bk(9)=3.330e-02,
+    pk(10)=0.000e+00, bk(10)=4.080e-02,
+    pk(11)=0.000e+00, bk(11)=4.960e-02,
+    pk(12)=0.000e+00, bk(12)=6.010e-02,
+    pk(13)=0.000e+00, bk(13)=7.220e-02,
+    pk(14)=0.000e+00, bk(14)=8.630e-02,
+    pk(15)=0.000e+00, bk(15)=1.025e-01,
+    pk(16)=0.000e+00, bk(16)=1.210e-01,
+    pk(17)=0.000e+00, bk(17)=1.419e-01,
+    pk(18)=0.000e+00, bk(18)=1.654e-01,
+    pk(19)=0.000e+00, bk(19)=1.916e-01,
+    pk(20)=0.000e+00, bk(20)=2.205e-01,
+    pk(21)=0.000e+00, bk(21)=2.522e-01,
+    pk(22)=0.000e+00, bk(22)=2.867e-01,
+    pk(23)=0.000e+00, bk(23)=3.239e-01,
+    pk(24)=0.000e+00, bk(24)=3.637e-01,
+    pk(25)=0.000e+00, bk(25)=4.057e-01,
+    pk(26)=0.000e+00, bk(26)=4.499e-01,
+    pk(27)=0.000e+00, bk(27)=4.957e-01,
+    pk(28)=0.000e+00, bk(28)=5.427e-01,
+    pk(29)=0.000e+00, bk(29)=5.906e-01,
+    pk(30)=0.000e+00, bk(30)=6.387e-01,
+    pk(31)=0.000e+00, bk(31)=6.863e-01,
+    pk(32)=0.000e+00, bk(32)=7.330e-01,
+    pk(33)=0.000e+00, bk(33)=7.779e-01,
+    pk(34)=0.000e+00, bk(34)=8.205e-01,
+    pk(35)=0.000e+00, bk(35)=8.599e-01,
+    pk(36)=0.000e+00, bk(36)=8.957e-01,
+    pk(37)=0.000e+00, bk(37)=9.272e-01,
+    pk(38)=0.000e+00, bk(38)=9.538e-01,
+    pk(39)=0.000e+00, bk(39)=9.750e-01,
+    pk(40)=0.000e+00, bk(40)=9.905e-01,
+    pk(41)=0.000e+00, bk(41)=1.000e+00 /
+
+
+END

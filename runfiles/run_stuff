@@ -1,0 +1,4 @@
+#!/bin/bash
+
+bash run_t42_axi_prescribed_6
+bash run_t42_ozone_2xirtau

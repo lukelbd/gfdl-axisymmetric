@@ -1,0 +1,70 @@
+# Makefile template for PGI f90
+
+FC = pgf90
+CC = pgcc
+CPPFLAGS = -Mmpi=mpich2
+
+# FOR RUNNING, 
+# -r8 = interpret real variables as DOUBLE
+# -Ktrap=fp = detect floating point exceptions (DO NOT CHANGE)
+# -pc 64 = double-precision 64-bit calculations (DO NOT CHANGE)
+# -tp=sandybridge = optimize for sandybridge XEON (E5) processors. If not on
+# euclid, you need to change this to reflect your CPU core architecture
+# -Kieee = more accurate division with less rounding error (DO NOT CHANGE)
+# -Mmpi=mpich2 = link with MPICH2 library
+# -O2 = optimization level (0=none, 1=scheduling/register allocation, 2=all 1 plus scalar optimizations)
+
+FFLAGS = -r8 -Ktrap=fp -pc 64 -tp=sandybridge-64 -Kieee -Mmpi=mpich2 -O2
+LD = /opt/pgi/linux86-64/13.7/bin/pgf90
+LDFLAGS = $(LIBS) -Mmpi=mpich2
+LIBS = -L/usr/local/lib -lmpl -lmpich -lfmpich -lmpichf90 -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lm -lz 
+LIST = -Mlist
+
+# never change any lines below, even on different machines
+
+RM = rm -f
+SHELL = /bin/bash
+TMPFILES = *.i *.lst *.mod *.s
+
+.SUFFIXES: .F .F90 .H .f .f90 .h .i .lst .o .s .x
+
+.f.lst:
+	$(FC) $(FFLAGS) -c $(LIST) $*.f
+.f.o:
+	$(FC) $(FFLAGS) -c $*.f
+.f.s:
+	$(FC) $(FFLAGS) -S $*.f
+.f.x:
+	$(FC) $(FFLAGS) -o $*.x $*.f *.o $(LDFLAGS)
+.f90.lst:
+	$(FC) $(FFLAGS) -c $(LIST) $*.f90
+.f90.o:
+	$(FC) $(FFLAGS) -c $*.f90
+.f90.s:
+	$(FC) $(FFLAGS) -c -S $*.f90
+.f90.x:
+	$(FC) $(FFLAGS) -o $*.x $*.f90 *.o $(LDFLAGS)
+.F.lst:
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) -c $(LIST) $*.F
+.F.f:
+	$(FC) $(CPPDEFS) $(CPPFLAGS) -F $*.F > $*.f
+.F.i:
+	$(FC) $(CPPDEFS) $(CPPFLAGS) -E $*.F > $*.i
+.F.o:
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) -c $*.F
+.F.s:
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) -c -S $*.F
+.F.x:
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) -o $*.x $*.F *.o $(LDFLAGS)
+.F90.lst:
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) -c $(LIST) $*.F90
+.F90.f90:
+	$(FC) $(CPPDEFS) $(CPPFLAGS) -F $*.F90 > $*.f90
+.F90.i:
+	$(FC) $(CPPDEFS) $(CPPFLAGS) -E $*.F90 > $*.i
+.F90.o:
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) -c $*.F90
+.F90.s:
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) -c -S $*.F90
+.F90.x:
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) -o $*.x $*.F90 *.o $(LDFLAGS)
